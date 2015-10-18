@@ -10,4 +10,3 @@ A simple URL shortener built using Meteor.
 5) All POST responses are returned as JSON objects  		
 6) When accessing site directly, or when a link isn’t found, it redirects to REDIRECT_URL        		
 7) There is no URL validation in this code  		
- Lock conversation

@@ -10,10 +10,18 @@ Router.route('main', {
 });
 
 Router.route('/new', function() {
-	if(this.request.headers.origin.substring(0, 6) !== process.env.RECEIVE_DOMAIN) {
+	if(this.request.headers.origin === process.env.RECEIVE_DOMAIN) {
 		if(this.request.body.key == process.env.RECEIVE_KEY) {
+			var theURL = this.request.body.url;
+			if(theURL.substring(0, 8) !== "https://") {
+				if(theURL.substring(0, 7) === "http://") {
+					theURL = "https://" + theURL.substring(7);
+				} else {
+					theURL = "https://" + theURL;
+				}
+			}
 			var linkExists = Links.findOne({
-				url: this.request.body.url
+				url: theURL
 			});
 			if(linkExists) {
 				var obj = new Object();
@@ -36,7 +44,7 @@ Router.route('/new', function() {
 			var noError = false;
 			Links.insert({
 				slug: slug,
-				url: this.request.body.url,
+				url: theURL,
 				views: 0,
 				created: new Date().getTime()
 			}, function(error, id) {
@@ -80,6 +88,7 @@ Router.route('/stats', function() {
 		if(link) {
 			var obj = new Object();
 			obj.stats = new Object();
+			obj.stats.url = link.url;
 			obj.stats.views = link.views;
 			obj.stats.created = link.created;
 		    obj.key = process.env.RETURN_KEY;
@@ -93,6 +102,26 @@ Router.route('/stats', function() {
 			this.response.end(JSONString);
 			return true;
 		}
+	} else {
+		var obj = new Object();
+		obj.error = "Invalid key.";
+	    var JSONString = JSON.stringify(obj);
+		this.response.end(JSONString);
+		return false;
+	}
+}, {where: 'server'});
+
+Router.route('/delete', function() {
+	if(this.request.body.key == process.env.RECEIVE_KEY) {
+		Links.remove({
+			slug: this.request.body.slug
+		});
+		var obj = new Object();
+		obj.success = true;
+	    obj.key = process.env.RETURN_KEY;
+	    var JSONString = JSON.stringify(obj);
+		this.response.end(JSONString);
+		return true;
 	} else {
 		var obj = new Object();
 		obj.error = "Invalid key.";
@@ -131,4 +160,3 @@ Router.route('slug', {
 		}
     }
 });
-

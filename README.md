@@ -1,5 +1,6 @@
 # meteor-shortener		
-A simple URL shortener built using Meteor.		
+A simple URL shortener built using Meteor.  
+Environment variables are specified in startup.js.		
 		
 ### Notes:  		
 1) POST data must be sent as x-www-form-urlencoded  		
